@@ -23,7 +23,7 @@ class GwyddionFile:
     def read_gwyddion_file(self):
         return gwyfile.load(self.filepath)
 
-    def plot_image(self, channels: list = None, ax=None, scale_bar_len: float = 100e-9, scale_bar_color: str = 'white'):
+    def plot_image(self, channels: list = None, ax=None, scale_bar_len: float = 100e-9, scale_bar_color: str = 'white', scale_bar_label = True):
 
         plots = {}
 
@@ -59,6 +59,9 @@ class GwyddionFile:
             bar_h = img_h * 0.012
 
             ax.add_patch(plt.Rectangle((bar_x, bar_y), scale_bar_len_px, bar_h, color=scale_bar_color))
+
+            if scale_bar_label:
+                ax.text(bar_x + scale_bar_len_px / 2, bar_y - bar_h * 2, f"{scale_bar_len*1e9:.0f} nm", color=scale_bar_color, ha='center', va='bottom', fontsize=8)
 
             plt.show()
 
