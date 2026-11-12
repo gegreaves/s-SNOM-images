@@ -1,6 +1,5 @@
 import gwyfile
 import matplotlib.pyplot as plt
-import numpy as np
 
 cmap_table = {
     'A': 'afmhot',
@@ -14,6 +13,7 @@ unit_table = {
     'P': ('Rad', 1),
 }
 
+
 class GwyddionFile:
     def __init__(self, filepath):
         self.filepath = filepath
@@ -23,31 +23,32 @@ class GwyddionFile:
     def read_gwyddion_file(self):
         return gwyfile.load(self.filepath)
 
-    def plot_image(self, channels: list = None, ax=None, scale_bar_len: float = 100e-9, scale_bar_color: str = 'white', scale_bar_label = True):
+    def plot_image(self,
+                   channels: list | None,
+                   ax=None,
+                   scale_bar_len: float = 100e-9,
+                   scale_bar_color: str = 'white',
+                   scale_bar_label=True):
 
         plots = {}
 
         if channels is None:
             channels = list(self.channels.keys())
-        
         # get pixel size from the Gwyddion file
         xreal = self.file['/0/data']['xreal']
         xres = self.file['/0/data']['xres']
         pixel_size = xreal / xres
-        
         for channel in channels:
             data = self.channels[channel].data
-            unit = next(value for key, value in unit_table.items() if key in channel)
-            cmap = next(value for key, value in cmap_table.items() if key in channel)
-            
-            fig,ax = plt.subplots(figsize=(4,3))
-            
+            unit = next(value for key, value in unit_table.items()
+                        if key in channel)
+            cmap = next(value for key, value in cmap_table.items()
+                        if key in channel) 
+            fig, ax = plt.subplots(figsize=(4, 3))
             im = ax.imshow(data*unit[1], cmap=cmap)
-            
             ax.set_title(channel)
             ax.set_xticks([])
             ax.set_yticks([])
-            
             cbar = fig.colorbar(im, ax=ax)
             cbar.set_label(f"{channel} ({unit[0]})")
 
@@ -58,31 +59,36 @@ class GwyddionFile:
             bar_y = img_h * 0.92
             bar_h = img_h * 0.012
 
-            ax.add_patch(plt.Rectangle((bar_x, bar_y), scale_bar_len_px, bar_h, color=scale_bar_color))
+            ax.add_patch(plt.Rectangle((bar_x, bar_y),
+                                       scale_bar_len_px, bar_h,
+                                       color=scale_bar_color))
 
             if scale_bar_label:
-                ax.text(bar_x + scale_bar_len_px / 2, bar_y - bar_h * 2, f"{scale_bar_len*1e9:.0f} nm", color=scale_bar_color, ha='center', va='bottom', fontsize=8)
+                ax.text(bar_x + scale_bar_len_px / 2, bar_y - bar_h * 2,
+                        f"{scale_bar_len*1e9:.0f} nm", color=scale_bar_color,
+                        ha='center', va='bottom', fontsize=8)
 
             plt.show()
 
-            plots[channel] = (fig, ax)
-        
+            plots[channel] = (fig, ax)     
         return plots
 
-    @staticmethod
-    def add_points(self, plots, points: dict, color = 'red', size: int = 10, label = True):
-        for channel, (fig, ax) in plots.items():
-            for loc in points:
-                x_phys, y_phys = points[loc]
-                x_offset, y_offset = self.file['/0/data']['xoff'], self.file['/0/data']['yoff']
-                x_res, y_res = self.file['/0/data']['xres'], self.file['/0/data']['yres']
-                x_real, y_real = self.file['/0/data']['xreal'], self.file['/0/data']['yreal']
+    def add_points(self, plots, points: dict, color='red', size: int = 10,
+                   label=True):
+        for fig, ax in plots.values():
+            for loc, value in points.items():
+                x_phys, y_phys = value
+                x_offset, y_offset = (self.file['/0/data']['xoff'],
+                                      self.file['/0/data']['yoff'])
+                x_res, y_res = (self.file['/0/data']['xres'],
+                                self.file['/0/data']['yres'])
+                x_real, y_real = (self.file['/0/data']['xreal'],
+                                  self.file['/0/data']['yreal'])
                 x_px = int((x_phys - x_offset) / x_real * x_res)
                 y_px = int((y_phys - y_offset) / y_real * y_res)
                 ax.scatter(x_px, y_px, color=color, s=size)
                 if label:
-                    ax.annotate(loc, (x_px, y_px), xytext=(0, 5), textcoords='offset points', color=color, fontsize=8)
+                    ax.annotate(loc, (x_px, y_px), xytext=(0, 5),
+                                textcoords='offset points', color=color,
+                                fontsize=8)
             plt.show()
-    
-
-    
