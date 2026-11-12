@@ -1,0 +1,7 @@
+pyproject.toml
+src/s_SNOM_images.egg-info/PKG-INFO
+src/s_SNOM_images.egg-info/SOURCES.txt
+src/s_SNOM_images.egg-info/dependency_links.txt
+src/s_SNOM_images.egg-info/requires.txt
+src/s_SNOM_images.egg-info/top_level.txt
+src/ssnom_images/images.py
