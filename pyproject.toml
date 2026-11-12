@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "s-SNOM-images"
+version = "0.1.0"
+description = "Tools for s-SNOM image analysis using data from neaSNOM systems"
+requires-python = ">=3.10"
+
+dependencies = [
+    "matplotlib",
+    "gwyfile"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
